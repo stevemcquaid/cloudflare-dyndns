@@ -1,0 +1,16 @@
+hash: e6af775ab2ecab09c9d54b72e9d5ddf4411db5b44a5da15d1f4aefd932f6fa2e
+updated: 2018-04-12T21:53:13.815168003-04:00
+imports:
+- name: github.com/cloudflare/cloudflare-go
+  version: 667a72333f4e362f45844ea90caef0e49ff8f97c
+- name: github.com/pkg/errors
+  version: a22138067af1c4942683050411a841ade67fe1eb
+- name: golang.org/x/net
+  version: 1c05540f6879653db88113bc4a2b70aec4bd491f
+  subpackages:
+  - context
+- name: golang.org/x/time
+  version: f51c12702a4d776e4c1fa9b0fabab841babae631
+  subpackages:
+  - rate
+testImports: []
