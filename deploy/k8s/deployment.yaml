@@ -1,23 +1,23 @@
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: cloudflare-go
+  name: cloudflare-dyndns
   labels:
-    app: cloudflare-go
+    app: cloudflare-dyndns
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: cloudflare-go
+      app: cloudflare-dyndns
   template:
     metadata:
       labels:
-        app: cloudflare-go
+        app: cloudflare-dyndns
     spec:
       containers:
-      - image: stevemcquaid/cloudflare-go-amd64:latest
+      - image: stevemcquaid/cloudflare-dyndns-amd64:latest
         imagePullPolicy: Always
-        name: cloudflare-go
+        name: cloudflare-dyndns
         resources:
           requests:
             cpu: 100m
@@ -26,11 +26,11 @@ spec:
         - name: http
           containerPort: 80
         args:
-        - --configfile=/etc/cloudflare-go/config.env
+        - --configfile=/etc/cloudflare-dyndns/config.env
         volumeMounts:
-        - name: cloudflare-go
-          mountPath: /etc/cloudflare-go/config.env
+        - name: cloudflare-dyndns
+          mountPath: /etc/cloudflare-dyndns/config.env
       volumes:
-      - name: cloudflare-go
+      - name: cloudflare-dyndns
         configMap:
-          name: cloudflare-go
+          name: cloudflare-dyndns

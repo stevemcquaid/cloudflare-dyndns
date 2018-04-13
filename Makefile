@@ -1,5 +1,5 @@
 REGISTRY?=stevemcquaid
-IMAGE?=cloudflare-go
+IMAGE?=cloudflare-dyndns
 TEMP_DIR:=$(shell mktemp -d)
 ARCH?=amd64
 # ALL_ARCH=amd64 arm arm64 ppc64le s390x
@@ -84,8 +84,8 @@ run:
 
 deploy-k8s:
 	kubectl apply -f deploy/k8s/deployment.yaml
-	kubectl create configmap cloudflare-go --from-file=config.env
+	kubectl create configmap $(IMAGE) --from-file=config.env
 
 deploy-k8s-undo:
 	kubectl delete -f deploy/k8s/deployment.yaml
-	kubectl delete configmap cloudflare-go
+	kubectl delete configmap $(IMAGE)

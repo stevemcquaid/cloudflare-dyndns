@@ -1,4 +1,4 @@
-package: github.com/stevemcquaid/cloudflare-go
+package: github.com/stevemcquaid/cloudflare-dyndns
 import:
     - package: github.com/cloudflare/cloudflare-go
 

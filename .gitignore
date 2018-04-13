@@ -1,4 +1,5 @@
 vendor/*
 cloudflare-go
+cloudflare-dyndns
 config.env
 manifest-tool
