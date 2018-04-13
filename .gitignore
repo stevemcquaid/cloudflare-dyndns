@@ -1,2 +1,4 @@
 vendor/*
 cloudflare-go
+config.env
+
