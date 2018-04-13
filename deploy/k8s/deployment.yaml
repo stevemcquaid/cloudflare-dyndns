@@ -43,10 +43,10 @@ spec:
                 name: cloudflare-dyndns
                 key: CF_API_EMAIL
 
-        volumeMounts:
-        - name: cloudflare-dyndns
-          mountPath: /
-      volumes:
-      - name: cloudflare-dyndns
-        configMap:
-          name: cloudflare-dyndns
+      #   volumeMounts:
+      #   - name: cloudflare-dyndns
+      #     mountPath: /
+      # volumes:
+      # - name: cloudflare-dyndns
+      #   configMap:
+      #     name: cloudflare-dyndns
