@@ -1,4 +1,4 @@
 vendor/*
 cloudflare-go
 config.env
-
+manifest-tool

@@ -2,8 +2,10 @@ REGISTRY?=stevemcquaid
 IMAGE?=cloudflare-go
 TEMP_DIR:=$(shell mktemp -d)
 ARCH?=amd64
-ALL_ARCH=amd64 arm arm64 ppc64le s390x
-ML_PLATFORMS=linux/amd64,linux/arm,linux/arm64,linux/ppc64le,linux/s390x
+# ALL_ARCH=amd64 arm arm64 ppc64le s390x
+ALL_ARCH=amd64
+# ML_PLATFORMS=linux/amd64,linux/arm,linux/arm64,linux/ppc64le,linux/s390x
+ML_PLATFORMS=linux/amd64
 OUT_DIR?=./_output
 VENDOR_DOCKERIZED=0
 EXEC_NAME=run
@@ -80,3 +82,10 @@ docker-run:
 run:
 	./$(OUT_DIR)/$(ARCH)/$(EXEC_NAME)
 
+deploy-k8s:
+	kubectl apply -f deploy/k8s/deployment.yaml
+	kubectl create configmap cloudflare-go --from-file=config.env
+
+deploy-k8s-undo:
+	kubectl delete -f deploy/k8s/deployment.yaml
+	kubectl delete configmap cloudflare-go

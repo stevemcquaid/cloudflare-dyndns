@@ -1,0 +1,36 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: cloudflare-go
+  labels:
+    app: cloudflare-go
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloudflare-go
+  template:
+    metadata:
+      labels:
+        app: cloudflare-go
+    spec:
+      containers:
+      - image: stevemcquaid/cloudflare-go-amd64:latest
+        imagePullPolicy: Always
+        name: cloudflare-go
+        resources:
+          requests:
+            cpu: 100m
+            memory: 20Mi
+        ports:
+        - name: http
+          containerPort: 80
+        args:
+        - --configfile=/etc/cloudflare-go/config.env
+        volumeMounts:
+        - name: cloudflare-go
+          mountPath: /etc/cloudflare-go/config.env
+      volumes:
+      - name: cloudflare-go
+        configMap:
+          name: cloudflare-go
