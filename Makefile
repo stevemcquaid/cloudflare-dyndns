@@ -84,8 +84,8 @@ run:
 
 deploy-k8s:
 	kubectl apply -f deploy/k8s/deployment.yaml
-	kubectl create configmap $(IMAGE) --from-file=config.env
+	kubectl create secret $(IMAGE) --from-file=config.env
 
 deploy-k8s-undo:
 	kubectl delete -f deploy/k8s/deployment.yaml
-	kubectl delete configmap $(IMAGE)
+	kubectl delete secret $(IMAGE)

@@ -26,10 +26,26 @@ spec:
         - name: http
           containerPort: 80
         args:
-        - --configfile=/etc/cloudflare-dyndns/config.env
+        - --configfile=config.env
+        env:
+          - name: DOMAIN
+            value: rbaz.com
+          - name: SUBDOMAIN
+            value: ip
+          - name: CF_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: cloudflare-dyndns
+                key: CF_API_KEY
+          - name: CF_API_EMAIL
+            valueFrom:
+              secretKeyRef:
+                name: cloudflare-dyndns
+                key: CF_API_EMAIL
+
         volumeMounts:
         - name: cloudflare-dyndns
-          mountPath: /etc/cloudflare-dyndns/config.env
+          mountPath: /
       volumes:
       - name: cloudflare-dyndns
         configMap:
