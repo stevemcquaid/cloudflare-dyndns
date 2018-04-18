@@ -34,6 +34,7 @@ all: build
 build: vendor
 	CGO_ENABLED=0 GOARCH=$(ARCH) go build -a -tags netgo -o $(OUT_DIR)/$(ARCH)/$(EXEC_NAME) github.com/$(REGISTRY)/$(IMAGE)
 
+## Build docker image
 docker-build: vendor
 	cp deploy/Dockerfile $(TEMP_DIR)
 	cd $(TEMP_DIR) && sed -i "s|BASEIMAGE|$(BASEIMAGE)|g" Dockerfile
@@ -76,16 +77,35 @@ gofmt:
 
 verify: verify-gofmt test
 
+## Run docker container locally
 docker-run:
 	docker run -it --env-file config.env $(REGISTRY)/$(IMAGE):latest ./$(EXEC_NAME)
 
 run:
 	./$(OUT_DIR)/$(ARCH)/$(EXEC_NAME)
 
+## Deploy to k8s
 deploy-k8s:
 	kubectl apply -f deploy/k8s/deployment.yaml
 	# kubectl create secret generic $(IMAGE) --from-file=config.env
 
+## Delete k8s deployment
 deploy-k8s-undo:
 	kubectl delete -f deploy/k8s/deployment.yaml
 	# kubectl delete secret $(IMAGE)
+
+## This help message
+help:
+	@printf "Available targets:\n\n"
+	@awk '/^[a-zA-Z\-\_0-9%:\\]+:/ { \
+	  helpMessage = match(lastLine, /^## (.*)/); \
+	  if (helpMessage) { \
+	    helpCommand = $$1; \
+	    helpMessage = substr(lastLine, RSTART + 3, RLENGTH); \
+      gsub("\\\\", "", helpCommand); \
+      gsub(":+$$", "", helpCommand); \
+	    printf "  \x1b[32;01m%-35s\x1b[0m %s\n", helpCommand, helpMessage; \
+	  } \
+	} \
+	{ lastLine = $$0 }' $(MAKEFILE_LIST) | sort -u
+	@printf "\n"
