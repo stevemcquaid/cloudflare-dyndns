@@ -1,9 +1,7 @@
-FROM BASEIMAGE
+FROM    scratch
 
-RUN apk update && apk add ca-certificates && rm -rf /var/cache/apk/*
+ADD     ca-certificates.crt /etc/ssl/certs/
 
-COPY run /
+COPY    run /
 
-USER 1001:1001
-
-CMD ["/run"]
+CMD     ["/run"]

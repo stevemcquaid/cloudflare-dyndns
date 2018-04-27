@@ -37,6 +37,7 @@ build: vendor
 ## Build docker image
 docker-build: vendor
 	cp deploy/Dockerfile $(TEMP_DIR)
+	cp deploy/ca-certificates.crt $(TEMP_DIR)
 	cd $(TEMP_DIR) && sed -i "s|BASEIMAGE|$(BASEIMAGE)|g" Dockerfile
 
 	docker run -it -v $(TEMP_DIR):/build -v $(shell pwd):/go/src/github.com/$(REGISTRY)/$(IMAGE) -e GOARCH=$(ARCH) golang:1.8 /bin/bash -c "\
@@ -44,6 +45,7 @@ docker-build: vendor
 
 	docker build -t $(REGISTRY)/$(IMAGE)-$(ARCH):$(VERSION) $(TEMP_DIR)
 	docker tag $(REGISTRY)/$(IMAGE)-$(ARCH):$(VERSION) $(REGISTRY)/$(IMAGE):$(VERSION)  
+	docker push $(REGISTRY)/$(IMAGE)-$(ARCH):$(VERSION)  
 	rm -rf $(TEMP_DIR)
 
 push-%:
@@ -87,12 +89,12 @@ run:
 ## Deploy to k8s
 deploy-k8s:
 	kubectl apply -f deploy/k8s/deployment.yaml
-	# kubectl create secret generic $(IMAGE) --from-file=config.env
+	kubectl create secret generic $(IMAGE) --from-file=config.env
 
 ## Delete k8s deployment
 deploy-k8s-undo:
 	kubectl delete -f deploy/k8s/deployment.yaml
-	# kubectl delete secret $(IMAGE)
+	kubectl delete secret $(IMAGE)
 
 ## This help message
 help:

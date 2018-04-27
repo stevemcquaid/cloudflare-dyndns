@@ -9,4 +9,10 @@ Golang implementation of DynDNS on CloudFlare.  Update a dns record to be your s
   - `make docker-build` - Compile the go code + build container
   - `make docker-run` - Run docker container with config.env as environment vars in container
 
-
+# Todo
+  - [ ] Implement glog / logging levels
+  - [ ] Clean up main.go
+  - [ ] Clean Makefile/scripts
+  - [ ] Create k8s secret generator from config.env file?
+    - [ ] Make secret mounted as volume/file, pass --env-file to main.go
+  - [ ] Dockerhub auto tag images 

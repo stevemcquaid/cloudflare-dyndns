@@ -5,11 +5,15 @@ import (
 	"log"
 	"os"
 
-	"github.com/cloudflare/cloudflare-go"
+	"errors"
+	"flag"
 	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/cloudflare/cloudflare-go"
+	"github.com/joho/godotenv"
 )
 
 var OLD_IP string
@@ -18,16 +22,56 @@ var CF_API_KEY string
 var CF_API_EMAIL string
 var SUBDOMAIN string
 
-func main() {
+func argParse() error {
+	configfile := flag.String("config", "", "Absolute path to the config env file")
+	flag.Parse()
+
+	if *configfile != "" {
+		// Load dotenv file into environment, overriding existing vars
+		err := godotenv.Load(*configfile)
+		if err != nil {
+			log.Fatal("Error loading .env file")
+		}
+	}
+
+	// Get vars from environment
 	DOMAIN = os.Getenv("DOMAIN")
+	if DOMAIN == "" {
+		msg := fmt.Sprintf("Need to define DOMAIN var")
+		return errors.New(msg)
+	}
 	CF_API_KEY = os.Getenv("CF_API_KEY")
+	if CF_API_KEY == "" {
+		msg := fmt.Sprintf("Need to define CF_API_KEY var")
+		return errors.New(msg)
+	}
 	CF_API_EMAIL = os.Getenv("CF_API_EMAIL")
+	if CF_API_EMAIL == "" {
+		msg := fmt.Sprintf("Need to define CF_API_EMAIL var")
+		return errors.New(msg)
+	}
 	SUBDOMAIN = os.Getenv("SUBDOMAIN")
+	if SUBDOMAIN == "" {
+		msg := fmt.Sprintf("Need to define SUBDOMAIN var")
+		return errors.New(msg)
+	}
 
-	OLD_IP = getMyIP(4)
-	dynDNS(OLD_IP)
+	return nil
+}
 
-	fmt.Println("Entering Control Loop... ")
+func main() {
+	err := argParse()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.SetOutput(os.Stdout)
+
+	//OLD_IP = getMyIP(4)
+	//dynDNS(OLD_IP)
+	checkIP()
+
+	log.Println("Entering Control Loop... ")
 	for {
 		time.Sleep(60 * time.Second)
 		go checkIP()
@@ -35,10 +79,13 @@ func main() {
 }
 
 func checkIP() {
-	fmt.Println("Checking IP...")
+	log.Printf("Checking IP...\n")
 	new_ip := getMyIP(4)
-	if OLD_IP != new_ip {
-		fmt.Sprintln("IP Address Changed: %s -> %s", OLD_IP, new_ip)
+	if OLD_IP == "" {
+		// First Run
+		dynDNS(new_ip)
+	} else if OLD_IP != new_ip {
+		log.Printf("IP Address Changed: %s -> %s", OLD_IP, new_ip)
 		dynDNS(new_ip)
 	}
 	OLD_IP = new_ip
@@ -67,7 +114,7 @@ func dynDNS(ip string) {
 	}
 
 	updateRecord(zoneID, api, &newRecord)
-	fmt.Println("Set DNSRecord:", newRecord.Name, newRecord.Content, "\n")
+	log.Println("Set DNSRecord:", newRecord.Name, newRecord.Content, "\n")
 
 	// Print records
 	//showCurrentRecords(zoneID, api)
@@ -75,12 +122,11 @@ func dynDNS(ip string) {
 
 func updateRecord(zoneID string, api *cloudflare.API, newRecord *cloudflare.DNSRecord) {
 	// Get current records
-	//fmt.Println("Getting old dns records... ")
-
+	//log.Println("Getting old dns records... ")
 	dns := cloudflare.DNSRecord{Type: newRecord.Type, Name: newRecord.Name}
 	old_records, err := api.DNSRecords(zoneID, dns)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 		return
 	}
 
@@ -88,7 +134,7 @@ func updateRecord(zoneID string, api *cloudflare.API, newRecord *cloudflare.DNSR
 		// Update
 		err := api.UpdateDNSRecord(zoneID, old_records[0].ID, *newRecord)
 		if err != nil {
-			fmt.Println(err)
+			log.Fatal(err)
 			return
 		}
 		return
@@ -99,34 +145,34 @@ func updateRecord(zoneID string, api *cloudflare.API, newRecord *cloudflare.DNSR
 		for _, record := range old_records {
 			err := api.DeleteDNSRecord(zoneID, record.ID)
 			if err != nil {
-				fmt.Println(err)
+				log.Fatal(err)
 				return
 			}
 			msg := fmt.Sprintf("Deleted DNSRecord: %s - %s: %s", record.Type, record.Name, record.Content)
-			fmt.Println(msg)
+			log.Println(msg)
 		}
 	}
 
 	// Create if < 1 or > 1
 	_, err = api.CreateDNSRecord(zoneID, *newRecord)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 		return
 	}
-	//fmt.Println("Done")
+	//log.Println("Done")
 }
 
 func showCurrentRecords(zoneID string, api *cloudflare.API) {
 	// Fetch all DNS records for example.org
 	records, err := api.DNSRecords(zoneID, cloudflare.DNSRecord{})
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return
 	}
 
 	for _, r := range records {
 		msg := fmt.Sprintf("%s: %s", r.Name, r.Content)
-		fmt.Println(msg)
+		log.Println(msg)
 	}
 }
 
