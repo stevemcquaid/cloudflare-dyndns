@@ -13,6 +13,6 @@ Golang implementation of DynDNS on CloudFlare.  Update a dns record to be your s
   - [ ] Implement glog / logging levels
   - [ ] Clean up main.go
   - [ ] Clean Makefile/scripts
-  - [ ] Create k8s secret generator from config.env file?
-    - [ ] Make secret mounted as volume/file, pass --env-file to main.go
+  - [X] Create k8s secret generator from config.env file?
+    - [X] Make secret mounted as volume/file, pass --env-file to main.go
   - [ ] Dockerhub auto tag images 
