@@ -1,8 +1,9 @@
 REGISTRY?=stevemcquaid
 IMAGE?=cloudflare-dyndns
-TEMP_DIR:=$(shell mktemp -d)
+#TEMP_DIR:=$(shell mktemp -d)
+TEMP_DIR:=$(shell pwd)/build
 ARCH?=amd64
-# ALL_ARCH=amd64 arm arm64 ppc64le s390x
+#ALL_ARCH=amd64 arm arm64 ppc64le s390x
 ALL_ARCH=amd64
 # ML_PLATFORMS=linux/amd64,linux/arm,linux/arm64,linux/ppc64le,linux/s390x
 ML_PLATFORMS=linux/amd64
@@ -15,18 +16,18 @@ VERSION?=latest
 ifeq ($(ARCH),amd64)
 	BASEIMAGE?=alpine
 endif
-#ifeq ($(ARCH),arm)
-	#BASEIMAGE?=armhf/busybox
-#endif
-#ifeq ($(ARCH),arm64)
-	#BASEIMAGE?=aarch64/busybox
-#endif
-#ifeq ($(ARCH),ppc64le)
-	#BASEIMAGE?=ppc64le/busybox
-#endif
-#ifeq ($(ARCH),s390x)
-	#BASEIMAGE?=s390x/busybox
-#endif
+ifeq ($(ARCH),arm)
+	BASEIMAGE?=armhf/busybox
+endif
+ifeq ($(ARCH),arm64)
+	BASEIMAGE?=aarch64/busybox
+endif
+ifeq ($(ARCH),ppc64le)
+	BASEIMAGE?=ppc64le/busybox
+endif
+ifeq ($(ARCH),s390x)
+	BASEIMAGE?=s390x/busybox
+endif
 
 .PHONY: all build docker-build push-% push test verify-gofmt gofmt verify
 
@@ -36,6 +37,7 @@ build: vendor
 
 ## Build docker image
 docker-build: vendor
+	mkdir -p $(TEMP_DIR)
 	cp deploy/Dockerfile $(TEMP_DIR)
 	cp deploy/ca-certificates.crt $(TEMP_DIR)
 	cd $(TEMP_DIR) && sed -i "s|BASEIMAGE|$(BASEIMAGE)|g" Dockerfile
@@ -46,7 +48,7 @@ docker-build: vendor
 	docker build -t $(REGISTRY)/$(IMAGE)-$(ARCH):$(VERSION) $(TEMP_DIR)
 	docker tag $(REGISTRY)/$(IMAGE)-$(ARCH):$(VERSION) $(REGISTRY)/$(IMAGE):$(VERSION)  
 	docker push $(REGISTRY)/$(IMAGE)-$(ARCH):$(VERSION)  
-	rm -rf $(TEMP_DIR)
+	#rm -rf $(TEMP_DIR)
 
 push-%:
 	$(MAKE) ARCH=$* docker-build
