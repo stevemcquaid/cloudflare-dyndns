@@ -179,11 +179,7 @@ func showCurrentRecords(zoneID string, api *cloudflare.API) {
 func getMyIP(protocol int) string {
 	var target string
 	if protocol == 4 {
-		target = "http://ipv4.myexternalip.com/raw"
-
-	} else if protocol == 6 {
-		target = "http://ipv6.myexternalip.com/raw"
-
+		target = "http://myexternalip.com/raw"
 	} else {
 		return ""
 
